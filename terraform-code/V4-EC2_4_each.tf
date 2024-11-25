@@ -8,6 +8,7 @@ resource "aws_instance" "demo-server" {
     key_name = "workshopkp"
     subnet_id = aws_subnet.dpp-public-subnet-01.id
     vpc_security_group_ids = [aws_security_group.demo-sg.id]
+    for_each = toset([ "Jenkins-master", "Jenkins-slave","Ansible" ])
    tags = {
      Name = "${each.key}"
    }
@@ -19,14 +20,22 @@ resource "aws_security_group" "demo-sg" {
   vpc_id = aws_vpc.dpp-vpc.id
   
   ingress {
-    description      = "SSh access"
+    description      = "SSH access"
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
     }
+  
+    ingress {
+    description      = "Jenkins access"
+    from_port        = 8080
+    to_port          = 8080
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    }
 
-  egress {
+    egress {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
